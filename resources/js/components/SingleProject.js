@@ -14,6 +14,9 @@ class SingleProject extends Component {
         this.handleMarkProjectAsCompleted = this.handleMarkProjectAsCompleted.bind(
             this
         );
+        this.handleMarkTaskAsCompleted = this.handleMarkTaskAsCompleted.bind(
+            this
+        );
         this.handleFieldChange = this.handleFieldChange.bind(this);
         this.handleAddNewTask = this.handleAddNewTask.bind(this);
         this.hasErrorFor = this.hasErrorFor.bind(this);
@@ -26,6 +29,16 @@ class SingleProject extends Component {
         axios
             .put(`/api/projects/${this.state.project.id}`)
             .then(response => history.push("/"));
+    }
+
+    handleMarkTaskAsCompleted(taskId) {
+        axios.put(`/api/tasks/${taskId}`).then(response => {
+            this.setState(prevState => ({
+                tasks: prevState.tasks.filter(task => {
+                    return task.id !== taskId;
+                })
+            }));
+        });
     }
 
     handleFieldChange(event) {
@@ -133,7 +146,12 @@ class SingleProject extends Component {
                                             key={task.id}
                                         >
                                             {task.title}
-                                            <button className="btn btn-primary btn-sm">
+                                            <button
+                                                className="btn btn-primary btn-sm"
+                                                onClick={this.handleMarkTaskAsCompleted.bind(
+                                                    this.task.id
+                                                )}
+                                            >
                                                 Mark as completed
                                             </button>
                                         </li>
