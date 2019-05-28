@@ -2,42 +2,33 @@ import axios from "axios";
 import React, { Component } from "react";
 
 class SingleProject extends Component {
-    constructor() {
+    constructor(props) {
         super(props);
+
         this.state = {
-            project: [],
+            project: {},
             tasks: [],
-            title: [],
+            title: "",
             errors: []
         };
 
-        this.handleMarkProjectAsCompleted = this.handleMarkProjectAsCompleted.bind(
-            this
-        );
-        this.handleMarkTaskAsCompleted = this.handleMarkTaskAsCompleted.bind(
-            this
-        );
         this.handleFieldChange = this.handleFieldChange.bind(this);
         this.handleAddNewTask = this.handleAddNewTask.bind(this);
         this.hasErrorFor = this.hasErrorFor.bind(this);
         this.renderErrorFor = this.renderErrorFor.bind(this);
+        this.handleMarkProjectAsCompleted = this.handleMarkProjectAsCompleted.bind(
+            this
+        );
     }
 
-    handleMarkProjectAsCompleted() {
-        const { history } = this.props;
+    componentDidMount() {
+        const projectId = this.props.match.params.id;
 
-        axios
-            .put(`/api/projects/${this.state.project.id}`)
-            .then(response => history.push("/"));
-    }
-
-    handleMarkTaskAsCompleted(taskId) {
-        axios.put(`/api/tasks/${taskId}`).then(response => {
-            this.setState(prevState => ({
-                tasks: prevState.tasks.filter(task => {
-                    return task.id !== taskId;
-                })
-            }));
+        axios.get(`/api/projects/${projectId}`).then(response => {
+            this.setState({
+                project: response.data,
+                tasks: response.data.tasks
+            });
         });
     }
 
@@ -48,11 +39,11 @@ class SingleProject extends Component {
     }
 
     handleAddNewTask(event) {
-        event.preventDefault;
+        event.preventDefault();
 
         const task = {
             title: this.state.title,
-            project_id: this.state.project_id
+            project_id: this.state.project.id
         };
 
         axios
@@ -62,6 +53,7 @@ class SingleProject extends Component {
                 this.setState({
                     title: ""
                 });
+
                 // add new task to list of tasks
                 this.setState(prevState => ({
                     tasks: prevState.tasks.concat(response.data)
@@ -88,14 +80,21 @@ class SingleProject extends Component {
         }
     }
 
-    componentDidMount() {
-        const projectId = this.props.match.params.id;
+    handleMarkProjectAsCompleted() {
+        const { history } = this.props;
 
-        axios.get(`/api/projects/${projectId}`).then(response => {
-            this.setState({
-                project: response.data,
-                tasks: response.data.tasks
-            });
+        axios
+            .put(`/api/projects/${this.state.project.id}`)
+            .then(response => history.push("/"));
+    }
+
+    handleMarkTaskAsCompleted(taskId) {
+        axios.put(`/api/tasks/${taskId}`).then(response => {
+            this.setState(prevState => ({
+                tasks: prevState.tasks.filter(task => {
+                    return task.id !== taskId;
+                })
+            }));
         });
     }
 
@@ -108,37 +107,44 @@ class SingleProject extends Component {
                     <div className="col-md-8">
                         <div className="card">
                             <div className="card-header">{project.name}</div>
+
                             <div className="card-body">
                                 <p>{project.description}</p>
+
                                 <button
                                     className="btn btn-primary btn-sm"
                                     onClick={this.handleMarkProjectAsCompleted}
                                 >
                                     Mark as completed
                                 </button>
+
                                 <hr />
+
                                 <form onSubmit={this.handleAddNewTask}>
                                     <div className="input-group">
                                         <input
                                             type="text"
                                             name="title"
-                                            cleassName={`form-control ${
+                                            className={`form-control ${
                                                 this.hasErrorFor("title")
-                                                    ? "is-valid"
+                                                    ? "is-invalid"
                                                     : ""
                                             }`}
                                             placeholder="Task title"
                                             value={this.state.title}
                                             onChange={this.handleFieldChange}
                                         />
+
                                         <div className="input-group-append">
                                             <button className="btn btn-primary">
                                                 Add
                                             </button>
                                         </div>
+
                                         {this.renderErrorFor("title")}
                                     </div>
                                 </form>
+
                                 <ul className="list-group mt-3">
                                     {tasks.map(task => (
                                         <li
@@ -146,10 +152,12 @@ class SingleProject extends Component {
                                             key={task.id}
                                         >
                                             {task.title}
+
                                             <button
                                                 className="btn btn-primary btn-sm"
                                                 onClick={this.handleMarkTaskAsCompleted.bind(
-                                                    this.task.id
+                                                    this,
+                                                    task.id
                                                 )}
                                             >
                                                 Mark as completed
