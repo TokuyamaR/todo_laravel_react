@@ -11,10 +11,21 @@ class SingleProject extends Component {
             errors: []
         };
 
+        this.handleMarkProjectAsCompleted = this.handleMarkProjectAsCompleted.bind(
+            this
+        );
         this.handleFieldChange = this.handleFieldChange.bind(this);
         this.handleAddNewTask = this.handleAddNewTask.bind(this);
         this.hasErrorFor = this.hasErrorFor.bind(this);
         this.renderErrorFor = this.renderErrorFor.bind(this);
+    }
+
+    handleMarkProjectAsCompleted() {
+        const { history } = this.props;
+
+        axios
+            .put(`/api/projects/${this.state.project.id}`)
+            .then(response => history.push("/"));
     }
 
     handleFieldChange(event) {
