@@ -2,13 +2,15 @@ import axios from "axios";
 import React, { Component } from "react";
 
 class NewProject extends Component {
-    constructor() {
+    constructor(props) {
         super(props);
+
         this.state = {
             name: "",
             description: "",
             errors: []
         };
+
         this.handleFieldChange = this.handleFieldChange.bind(this);
         this.handleCreateNewProject = this.handleCreateNewProject.bind(this);
         this.hasErrorFor = this.hasErrorFor.bind(this);
@@ -25,6 +27,7 @@ class NewProject extends Component {
         event.preventDefault();
 
         const { history } = this.props;
+
         const project = {
             name: this.state.name,
             description: this.state.description
@@ -36,7 +39,7 @@ class NewProject extends Component {
                 history.push("/");
             })
             .catch(error => {
-                this.setStete({
+                this.setState({
                     errors: error.response.data.errors
                 });
             });
@@ -65,7 +68,8 @@ class NewProject extends Component {
                             <div className="card-header">
                                 Create new project
                             </div>
-                            <div className="card=body">
+
+                            <div className="card-body">
                                 <form onSubmit={this.handleCreateNewProject}>
                                     <div className="form-group">
                                         <label htmlFor="name">
@@ -85,6 +89,7 @@ class NewProject extends Component {
                                         />
                                         {this.renderErrorFor("name")}
                                     </div>
+
                                     <div className="form-group">
                                         <label htmlFor="description">
                                             Project description
@@ -101,8 +106,10 @@ class NewProject extends Component {
                                             value={this.state.description}
                                             onChange={this.handleFieldChange}
                                         />
+
                                         {this.renderErrorFor("description")}
                                     </div>
+
                                     <button className="btn btn-primary">
                                         Create
                                     </button>
